@@ -1,0 +1,5 @@
+.idea
+node_modules
+kampela.db
+__pycache__
+handler/__pycache__
