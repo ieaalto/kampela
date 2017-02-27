@@ -45,7 +45,7 @@ class FacebookLoginHandler(BaseHandler, auth.FacebookGraphMixin):
 
             else:
                 await self.authorize_redirect(
-                    redirect_uri='http://localhost:8000/complete/facebook/',
+                    redirect_uri=settings.URL +'/complete/facebook/',
                     client_id=settings.FACEBOOK_API_KEY,
                     response_type='code',
                 )
