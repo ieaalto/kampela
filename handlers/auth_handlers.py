@@ -29,7 +29,7 @@ class FacebookLoginHandler(BaseHandler, auth.FacebookGraphMixin):
                 user_data = await self.get_authenticated_user(
                     client_id=settings.FACEBOOK_API_KEY,
                     client_secret=settings.FACEBOOK_API_SECRET,
-                    redirect_uri='http://localhost:8000/complete/facebook/',
+                    redirect_uri=settings.URL + '/complete/facebook/',
                     code=self.get_argument('code'))
 
                 try:
