@@ -1,7 +1,7 @@
-from tornado import web, ioloop, httpserver
+from tornado import web, ioloop
 
 from handlers import api_handlers, auth_handlers, view_handlers
-import settings, os
+import settings
 
 
 def make_app():
@@ -27,9 +27,11 @@ def make_app():
 
 if __name__ == "__main__":
     app = make_app()
-    http_server = httpserver.HTTPServer(app)
-    port = int(os.environ.get("PORT", 5000))
-    http_server.listen(port)
-    ioloop.IOLoop.instance().start()
+    app.listen(8000)
+    try:
+        ioloop.IOLoop.current().start()
+    except KeyboardInterrupt:
+        ioloop.IOLoop.current().stop()
+        print("Server stopped.")
 
 

@@ -327,10 +327,13 @@ class App extends React.Component{
             const data = JSON.parse(message.data);
             this.state.messages[data.channel.name].push(data);
             if(data.type === 'join'){
-                console.log(data);
-                this.state.users[data.channel.name].push(data.user)
+                if(this.state.users[data.channelName]){
+                    this.state.users[data.channel.name].push(data.user)
+                }
             } if (data.type === 'part'){
-                this.state.users[data.channel.name] = this.state.users[data.channel.name].filter(user => user.id !== data.user.id)
+                if(this.state.users[data.channelName]) {
+                    this.state.users[data.channel.name] = this.state.users[data.channel.name].filter(user => user.id !== data.user.id)
+                }
             }
             if(this.state.selectedChannel != data.channel.name){
                 this.state.new_messages[data.channel.name] = true
@@ -358,17 +361,26 @@ class App extends React.Component{
     }
 
     sendMessage(content){
-        API.sendMessage(this.state.channels[this.state.selectedChannel].channel.name, content)
+        if (this.state.selectedChannel !== -1){
+            API.sendMessage(this.state.channels[this.state.selectedChannel].channel.name, content)
+        }
     }
 
     updateUser(data){
         this.setState({
             user : data
         });
+
+        this.joinChannel("DemoChannel");
+
+        this.state.messages["DemoChannel"].push({
+                type: 'notification',
+                content: "Welcome to chat! You've been added to #DemoChannel. To join a channel type '/join <channel_name>', and to leave a channel type '/part <channel_name>'."
+            })
     }
 
     selectChannel(channel){
-        delete this.state.new_messages[channel.name]
+        delete this.state.new_messages[channel.name];
 
         this.setState({
             selectedChannel: channel.name
@@ -403,7 +415,7 @@ class App extends React.Component{
         }
     }
 
-    joinChannel(channelName){
+    joinChannel(channelName, joinMessage){
         channelName = /^#.*/.test(channelName)? channelName.slice(1) : channelName;
 
         if(!this.state.channels[channelName]) {
@@ -415,18 +427,18 @@ class App extends React.Component{
                 });
                 this.forceUpdate()
             } else {
-                API.joinChannel(channelName).then(channel => {
-                    this.state.channels[channel.channel.name] = channel;
-                    this.state.messages[channel.channel.name] = [{
+                this.state.messages[channelName] = [{
                         type: "notification",
                         content: "Welcome to #" + channelName + "!"
                     }];
+                API.joinChannel(channelName).then(channel => {
+                    this.state.channels[channel.channel.name] = channel;
                     this.state.users[channel.channel.name] = [];
                     API.getUsersOnChannel(channel.channel.name).then(users => {
                         this.state.users[channel.channel.name] = users;
                         this.forceUpdate()
                     });
-                    this.setState({selectedChannel: channel.channel.name})
+                    this.selectChannel(channel.channel)
                 })
             }
         } else{

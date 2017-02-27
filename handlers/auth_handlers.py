@@ -11,6 +11,8 @@ import settings
 class FacebookLoginHandler(BaseHandler, auth.FacebookGraphMixin):
 
     async def _set_user(self, user_data):
+        database_connection.db.connect()
+
         id = user_data["id"]
         name = user_data["first_name"]
         user = User.get_or_create(facebook_id=id, defaults={"facebook_id": id,
@@ -18,6 +20,8 @@ class FacebookLoginHandler(BaseHandler, auth.FacebookGraphMixin):
                                                             "first_name": name})[0]
 
         self.set_secure_cookie("user", str(user.id))
+
+        database_connection.db.close()
 
     async def get(self):
         if not self.current_user:

@@ -35588,12 +35588,15 @@ var App = function (_React$Component7) {
             var data = JSON.parse(message.data);
             this.state.messages[data.channel.name].push(data);
             if (data.type === 'join') {
-                console.log(data);
-                this.state.users[data.channel.name].push(data.user);
+                if (this.state.users[data.channelName]) {
+                    this.state.users[data.channel.name].push(data.user);
+                }
             }if (data.type === 'part') {
-                this.state.users[data.channel.name] = this.state.users[data.channel.name].filter(function (user) {
-                    return user.id !== data.user.id;
-                });
+                if (this.state.users[data.channelName]) {
+                    this.state.users[data.channel.name] = this.state.users[data.channel.name].filter(function (user) {
+                        return user.id !== data.user.id;
+                    });
+                }
             }
             if (this.state.selectedChannel != data.channel.name) {
                 this.state.new_messages[data.channel.name] = true;
@@ -35624,13 +35627,22 @@ var App = function (_React$Component7) {
     }, {
         key: 'sendMessage',
         value: function sendMessage(content) {
-            API.sendMessage(this.state.channels[this.state.selectedChannel].channel.name, content);
+            if (this.state.selectedChannel !== -1) {
+                API.sendMessage(this.state.channels[this.state.selectedChannel].channel.name, content);
+            }
         }
     }, {
         key: 'updateUser',
         value: function updateUser(data) {
             this.setState({
                 user: data
+            });
+
+            this.joinChannel("DemoChannel");
+
+            this.state.messages["DemoChannel"].push({
+                type: 'notification',
+                content: "Welcome to chat! You've been added to #DemoChannel. To join a channel type '/join <channel_name>', and to leave a channel type '/part <channel_name>'."
             });
         }
     }, {
@@ -35673,7 +35685,7 @@ var App = function (_React$Component7) {
         }
     }, {
         key: 'joinChannel',
-        value: function joinChannel(channelName) {
+        value: function joinChannel(channelName, joinMessage) {
             var _this13 = this;
 
             channelName = /^#.*/.test(channelName) ? channelName.slice(1) : channelName;
@@ -35687,18 +35699,18 @@ var App = function (_React$Component7) {
                     });
                     this.forceUpdate();
                 } else {
+                    this.state.messages[channelName] = [{
+                        type: "notification",
+                        content: "Welcome to #" + channelName + "!"
+                    }];
                     API.joinChannel(channelName).then(function (channel) {
                         _this13.state.channels[channel.channel.name] = channel;
-                        _this13.state.messages[channel.channel.name] = [{
-                            type: "notification",
-                            content: "Welcome to #" + channelName + "!"
-                        }];
                         _this13.state.users[channel.channel.name] = [];
                         API.getUsersOnChannel(channel.channel.name).then(function (users) {
                             _this13.state.users[channel.channel.name] = users;
                             _this13.forceUpdate();
                         });
-                        _this13.setState({ selectedChannel: channel.channel.name });
+                        _this13.selectChannel(channel.channel);
                     });
                 }
             } else {
