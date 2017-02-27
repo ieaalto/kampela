@@ -4,7 +4,7 @@ STATIC_DIRNAME = "static"
 
 APPLICATION = {
     "template_path": "./templates/",
-    "cookie_secret": 'KhOKFGTQWRUboChQnUnVErJLSdo8Fazp8D3aIAxRs3rLlZrA5LxkxvEmNPAsPRIN',
+    "cookie_secret": os.environ["COOKIE_SECRET"],
     "login_url": "/login/",
     "xsrf_cookies": False,
     "debug": True,
@@ -13,7 +13,7 @@ APPLICATION = {
     "auto_load": False
 }
 
-FACEBOOK_API_KEY = '481044718950084'
-FACEBOOK_API_SECRET = '82391edc7320475e1547d077e52fd65c'
+FACEBOOK_API_KEY = os.environ['FACEBOOK_API_KEY']
+FACEBOOK_API_SECRET = os.environ['FACEBOOK_API_SECRET']
 
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
